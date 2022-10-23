@@ -1,0 +1,11 @@
+premake5*
+template
+
+.sln
+Makefile
+
+bin
+bin-int
+.vs
+bin
+build
