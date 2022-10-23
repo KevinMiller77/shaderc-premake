@@ -16,7 +16,7 @@ project "MachineIndependent"
 
     prebuildcommands {
         "{MKDIR} %{prj.location}/../../glslang/build",
-        "cmake -S %{prj.location}/../../glslang -B %{prj.location}/../../glslang/build"
+        "cmake -D SKIP_GLSLANG_INSTALL=ON -S %{prj.location}/../../glslang -B %{prj.location}/../../glslang/build"
     }
 
 	files

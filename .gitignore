@@ -1,7 +1,8 @@
-premake5*
+premake5
+premake5.exe
 template
 
-.sln
+*.sln
 Makefile
 
 bin

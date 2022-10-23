@@ -8,12 +8,6 @@ project "shaderc_util"
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
-    prebuildcommands {
-        "python %{prj.location}/../../shaderc/utils/git-sync-deps",
-        "{MKDIR} %{prj.location}/../../shaderc/build",
-        "cmake -B %{prj.location}/../../shaderc/build -S %{prj.location}/../../shaderc"
-    }
-
     dependson {
         "GenericCodeGen",
         "OGLCompiler",
@@ -69,9 +63,26 @@ project "shaderc_util"
     }
 
     filter "system:windows"
+    
+        prebuildcommands {
+            "xcopy /Q /E /Y /I \"../../SPIRV-Headers\" \"../../shaderc/third_party/SPIRV-Tools\"",
+            "xcopy /Q /E /Y /I \"../../SPIRV-Headers\" \"../../shaderc/third_party/SPIRV-Headers\"",
+            "xcopy /Q /E /Y /I \"../../glslang\" \"../../shaderc/third_party/glslang\""
+        }
+
         defines {
             'WIN32',
             '_WINDOWS',
+        }
+
+    filter "not system:windows"
+        prebuildcommands {
+            "rm -rf %{prj.location}/../../shaderc/third_party/SPIRV-Tools",
+            "ln -s -f %{prj.location}/../../SPIRV-Headers %{prj.location}/../../shaderc/third_party/SPIRV-Tools",
+            "rm -rf %{prj.location}/../../shaderc/third_party/SPIRV-Headers",
+            "ln -s -f %{prj.location}/../../SPIRV-Headers %{prj.location}/../../shaderc/third_party/SPIRV-Headers",
+            "rm -rf %{prj.location}/../../shaderc/third_party/glslang",
+            "ln -s -f %{prj.location}/../../glslang %{prj.location}/../../shaderc/third_party/glslang"
         }
 
 	filter "system:linux"

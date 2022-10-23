@@ -8,13 +8,6 @@ project "spirv-tools"
     targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
-    prebuildcommands {
-        "python %{prj.location}/../../SPIRV-Tools/utils/git-sync-deps",
-        "{MKDIR} %{prj.location}/../../SPIRV-Tools/build",
-        "cmake -S %{prj.location}/../../SPIRV-Tools -B %{prj.location}/../../SPIRV-Tools/build",
-        "cmake --build %{prj.location}/../../SPIRV-Tools/build --target SPIRV-Tools-static",
-    }
-
 	files
 	{
         "SPIRV-Tools/include/spirv-tools/libspirv.h",
@@ -139,9 +132,15 @@ project "spirv-tools"
 		"SPIRV-Tools/build",
 		"SPIRV-Headers/include",
 	}
-
-
+    
     filter "system:windows"
+        prebuildcommands { 
+            "xcopy /Q /E /Y /I \"../../SPIRV-Headers\" \"../../SPIRV-Tools/external/SPIRV-Headers\"",
+            "{MKDIR} ../../SPIRV-Tools/build",
+            "cmake -D SKIP_SPIRV_TOOLS_INSTALL=ON -S ../../SPIRV-Tools -B ../../SPIRV-Tools/build",
+            "cmake --build ../../SPIRV-Tools/build --target SPIRV-Tools-static -j6"
+        }
+
         defines {
             'WIN32',
             '_WINDOWS',
@@ -151,6 +150,16 @@ project "spirv-tools"
             'SPIRV_WINDOWS;SPIRV_COLOR_TERMINAL',
             'CMAKE_INTDIR="MinSizeRel"'
         }
+
+    filter "not system:windows"
+        prebuildcommands { 
+            "{RMDIR} %{prj.location}/../../SPIRV-Tools/external/SPIRV-Headers",
+            "ln -s -f %{prj.location}/../../SPIRV-Headers %{prj.location}/../../SPIRV-Tools/external/SPIRV-Headers",
+            "{MKDIR} %{prj.location}/../../SPIRV-Tools/build",
+            "cmake -D SKIP_SPIRV_TOOLS_INSTALL=ON -S %{prj.location}/../../SPIRV-Tools -B %{prj.location}/../../SPIRV-Tools/build",
+            "cmake --build %{prj.location}/../../SPIRV-Tools/build --target SPIRV-Tools-static -j6"
+        }
+        
 	filter "system:linux"
 		pic "On"
 
